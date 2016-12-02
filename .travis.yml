@@ -17,4 +17,5 @@ install:
   - go get -u github.com/minio/minio-go
 
 script:
-  - go test -cover
+  - go test -cover -coverprofile=coverage.out
+  - go tool cover -func=coverage.out

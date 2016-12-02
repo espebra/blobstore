@@ -12,6 +12,8 @@ type FileSystemProvider struct {
 	BaseDir string
 }
 
+// NewFileSystemProvider initializes a new FileSystemProvider with default
+// values.
 func NewFileSystemProvider(p *ProviderData) *FileSystemProvider {
 	p.Encryption = false
 	p.Secret = ""
@@ -19,6 +21,7 @@ func NewFileSystemProvider(p *ProviderData) *FileSystemProvider {
 	return &FileSystemProvider{ProviderData: p}
 }
 
+// Configure configures a FileSystemProvider.
 func (p *FileSystemProvider) Configure(basedir string) {
 	p.BaseDir = basedir
 	if p.BaseDir == "" {
@@ -26,8 +29,9 @@ func (p *FileSystemProvider) Configure(basedir string) {
 	}
 }
 
-// Store named file
-func (p *FileSystemProvider) Store(name string, data io.Reader) (int64, error) {
+// Store named file in FileSystemProvider. The return value bytes is the number
+// of bytes that was stored.
+func (p *FileSystemProvider) Store(name string, data io.Reader) (bytes int64, err error) {
 	fpath := path.Join(p.BaseDir, name)
 	f, err := os.Create(fpath)
 	if err != nil {
@@ -36,12 +40,13 @@ func (p *FileSystemProvider) Store(name string, data io.Reader) (int64, error) {
 	defer f.Close()
 
 	b := bufio.NewReader(data)
-	bytes, err := b.WriteTo(f)
+	bytes, err = b.WriteTo(f)
 	return bytes, err
 }
 
-// Retrieve named file
-func (p *FileSystemProvider) Retrieve(name string, fp io.Writer) (int64, error) {
+// Retrieve named file from FileSystemProvider. The return value bytes is the
+// number of bytes that was retrieved.
+func (p *FileSystemProvider) Retrieve(name string, fp io.Writer) (bytes int64, err error) {
 	fpath := path.Join(p.BaseDir, name)
 	f, err := os.Open(fpath)
 	if err != nil {
@@ -49,20 +54,21 @@ func (p *FileSystemProvider) Retrieve(name string, fp io.Writer) (int64, error) 
 	}
 	defer f.Close()
 
-	bytes, err := io.Copy(fp, f)
+	bytes, err = io.Copy(fp, f)
 	return bytes, err
 }
 
-// Delete named file
-func (p *FileSystemProvider) Delete(name string) error {
+// Delete named file from FileSystemProvider.
+func (p *FileSystemProvider) Delete(name string) (error) {
 	fpath := path.Join(p.BaseDir, name)
 	return os.Remove(fpath)
 }
 
-// Does a named file exist
-func (p *FileSystemProvider) Exists(name string) (bool, error) {
+// Exists will verify if a named file exists in FileSystemProvider. The return
+// value exists is a boolean indicating if the named file exists or not.
+func (p *FileSystemProvider) Exists(name string) (exists bool, err error) {
 	fpath := path.Join(p.BaseDir, name)
-	_, err := os.Stat(fpath)
+	_, err = os.Stat(fpath)
 	if err == nil {
 		return true, nil
 	}

@@ -18,6 +18,7 @@ type S3Provider struct {
 	bucket   string
 }
 
+// NewS3Provider initializes a new S3Provider with default values.
 func NewS3Provider(p *ProviderData) *S3Provider {
 	p.Encryption = false
 	p.Secret = ""
@@ -25,11 +26,13 @@ func NewS3Provider(p *ProviderData) *S3Provider {
 	return &S3Provider{ProviderData: p}
 }
 
+// Credentials is used to specify the credentials to use for an S3Provider.
 func (p *S3Provider) Credentials(key, secret string) {
 	p.key = key
 	p.secret = secret
 }
 
+// Configure configures an S3Provider.
 func (p *S3Provider) Configure(endpoint, location, bucket string, useSSL bool) {
 	p.endpoint = endpoint
 	if p.endpoint == "" {
@@ -46,8 +49,9 @@ func (p *S3Provider) Configure(endpoint, location, bucket string, useSSL bool) {
 	p.useSSL = useSSL
 }
 
-// Store named file
-func (p *S3Provider) Store(name string, data io.Reader) (int64, error) {
+// Store named file in S3Provider. The return value bytes is the number of
+// bytes that was stored.
+func (p *S3Provider) Store(name string, data io.Reader) (bytes int64, err error) {
 	minioClient, err := minio.New(p.endpoint, p.key, p.secret, p.useSSL)
 	if err != nil {
 		return 0, err
@@ -65,15 +69,16 @@ func (p *S3Provider) Store(name string, data io.Reader) (int64, error) {
 
 	contentType := "application/octet-stream"
 	b := bufio.NewReader(data)
-	bytes, err := minioClient.PutObject(p.bucket, name, b, contentType)
+	bytes, err = minioClient.PutObject(p.bucket, name, b, contentType)
 	if err != nil {
 		return 0, err
 	}
 	return bytes, err
 }
 
-// Retrieve named file
-func (p *S3Provider) Retrieve(name string, fp io.Writer) (int64, error) {
+// Retrieve named file from S3Provider. The return value bytes is the number of
+// bytes that was retrieved.
+func (p *S3Provider) Retrieve(name string, fp io.Writer) (bytes int64, err error) {
 	minioClient, err := minio.New(p.endpoint, p.key, p.secret, p.useSSL)
 	if err != nil {
 		log.Fatalf("Unable to create client: %s\n", err)
@@ -84,11 +89,11 @@ func (p *S3Provider) Retrieve(name string, fp io.Writer) (int64, error) {
 		log.Fatalf("Unabel to get %s: %s\n", name, err)
 		return 0, errors.New("Unable to retrieve " + name + ":" + err.Error())
 	}
-	bytes, err := io.Copy(fp, f)
+	bytes, err = io.Copy(fp, f)
 	return bytes, err
 }
 
-// Delete named file
+// Delete named file from S3Provider.
 func (p *S3Provider) Delete(name string) error {
 	minioClient, err := minio.New(p.endpoint, p.key, p.secret, p.useSSL)
 	if err != nil {
@@ -97,8 +102,9 @@ func (p *S3Provider) Delete(name string) error {
 	return minioClient.RemoveObject(p.bucket, name)
 }
 
-// Does a named file exist
-func (p *S3Provider) Exists(name string) (bool, error) {
+// Exists will verify if a named file exists in S3Provider. The return value
+// exists is a boolean indicating if the named file exists or not.
+func (p *S3Provider) Exists(name string) (exists bool, err error) {
 	minioClient, err := minio.New(p.endpoint, p.key, p.secret, p.useSSL)
 	if err != nil {
 		return false, err

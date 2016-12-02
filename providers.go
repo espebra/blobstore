@@ -12,6 +12,7 @@ type Provider interface {
 	Exists(string) (bool, error)
 }
 
+// New is used to create and initialize a new storage provider.
 func New(provider string, p *ProviderData) Provider {
 	switch provider {
 	case "s3":

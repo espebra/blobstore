@@ -3,6 +3,7 @@ package blobstore
 import (
 	"bytes"
 	"io"
+	"os"
 	"testing"
 )
 
@@ -12,17 +13,21 @@ func newFileSystemProvider() *FileSystemProvider {
 }
 
 func TestFileSystemProviderDefaults(t *testing.T) {
+	dir := os.TempDir()
 	p := newFileSystemProvider()
+	p.Configure(dir)
 
 	// Verify default values
-	if p.BaseDir != "/srv/blobstore" {
-		t.Fatal("Unexpected basedir: ", p.BaseDir)
+	if p.BaseDir != dir {
+		t.Fatal("Unexpected basedir: ", dir)
 	}
 }
 
 // Verify that we can store a file
 func TestFileSystemProviderStore(t *testing.T) {
 	p := newFileSystemProvider()
+	p.Configure(os.TempDir())
+
 	r := io.Reader(
 		bytes.NewReader([]byte("some content")),
 	)
@@ -46,6 +51,7 @@ func TestFileSystemProviderStore(t *testing.T) {
 // Verify that we can read a file
 func TestFileSystemProviderRetrieve(t *testing.T) {
 	p := newFileSystemProvider()
+	p.Configure(os.TempDir())
 
 	var f bytes.Buffer
 	bytes, err := p.Retrieve("foo", &f)
@@ -60,6 +66,7 @@ func TestFileSystemProviderRetrieve(t *testing.T) {
 // Verify that we can delete a file
 func TestFileSystemProviderDelete(t *testing.T) {
 	p := newFileSystemProvider()
+	p.Configure(os.TempDir())
 
 	err := p.Delete("foo")
 	if err != nil {

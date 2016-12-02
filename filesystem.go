@@ -16,9 +16,13 @@ func NewFileSystemProvider(p *ProviderData) *FileSystemProvider {
 	p.Encryption = false
 	p.Secret = ""
 
-	return &FileSystemProvider{
-		ProviderData: p,
-		BaseDir:      "/srv/blobstore",
+	return &FileSystemProvider{ProviderData: p}
+}
+
+func (p *FileSystemProvider) Configure(basedir string) {
+	p.BaseDir = basedir
+	if p.BaseDir == "" {
+		p.BaseDir = "/srv/blobstore"
 	}
 }
 

@@ -1,11 +1,10 @@
 language: go
 
 go:
-  - tip
+  - 1.7
 
 env:
-  - MINIO_ACCESS_KEY=accesskey
-  - MINIO_SECRET_KEY=secretkey
+  - MINIO_ACCESS_KEY=accesskey MINIO_SECRET_KEY=secretkey
 
 install:
   - go get -u github.com/minio/minio

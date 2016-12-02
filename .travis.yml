@@ -3,5 +3,14 @@ language: go
 go:
   - tip
 
+env:
+  - MINIO_ACCESS_KEY=accesskey
+  - MINIO_SECRET_KEY=secretkey
+
 install:
+  - go get -u github.com/minio/minio
+  - mkdir -p data
+  - minio server --address 127.0.0.1:9000 data &
+
+script:
   - go test -cover

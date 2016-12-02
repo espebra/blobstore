@@ -38,6 +38,11 @@ func TestFileSystemProviderStore(t *testing.T) {
 	if bytes != 12 {
 		t.Fatalf("Unexpected number of bytes stored: %d", bytes)
 	}
+}
+
+func TestFileSystemProviderExists(t *testing.T) {
+	p := newFileSystemProvider()
+	p.Configure(os.TempDir())
 
 	exists, err := p.Exists("foo")
 	if err != nil {

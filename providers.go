@@ -14,8 +14,8 @@ type Provider interface {
 
 func New(provider string, p *ProviderData) Provider {
 	switch provider {
-	//case "s3":
-	//	return NewS3Provider(p)
+	case "s3":
+		return NewS3Provider(p)
 	default:
 		return NewFileSystemProvider(p)
 	}

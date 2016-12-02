@@ -1,4 +1,6 @@
 language: go
+dist: trusty
+sudo: false
 
 go:
   - 1.7
@@ -6,10 +8,13 @@ go:
 env:
   - MINIO_ACCESS_KEY=accesskey MINIO_SECRET_KEY=secretkey
 
-install:
+before_install:
   - go get -u github.com/minio/minio
   - mkdir -p data
   - minio server --address 127.0.0.1:9000 data &
+
+install:
+  - go get -u github.com/minio/minio-go
 
 script:
   - go test -cover

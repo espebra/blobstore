@@ -53,9 +53,7 @@ func (p *S3Provider) Store(name string, data io.Reader) (int64, error) {
 		return 0, err
 	}
 	err = minioClient.MakeBucket(p.bucket, p.location)
-	if err == nil {
-		log.Printf("Successfully created bucket %s\n", p.bucket)
-	} else {
+	if err != nil {
 		exists, err := minioClient.BucketExists(p.bucket)
 		if err != nil {
 			return 0, err

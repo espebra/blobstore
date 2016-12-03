@@ -12,12 +12,9 @@ type Provider interface {
 	Exists(string) (bool, error)
 }
 
-// New is used to create and initialize a new storage provider.
-func New(provider string, p *ProviderData) Provider {
-	switch provider {
-	case "s3":
-		return NewS3Provider(p)
-	default:
-		return NewFileSystemProvider(p)
-	}
+type ProviderData struct {
+	Encryption bool
+	Secret     string
 }
+
+func (p *ProviderData) Data() *ProviderData { return p }

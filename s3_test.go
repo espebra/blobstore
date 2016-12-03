@@ -89,18 +89,18 @@ func TestS3ProviderRetrieve(t *testing.T) {
 	}
 }
 
-// Verify that we can delete a file
-func TestS3ProviderDelete(t *testing.T) {
+// Verify that we can remove a file
+func TestS3ProviderRemove(t *testing.T) {
 	p := newS3Provider()
 	p.Credentials(key, secret)
 	p.Configure(endpoint, location, bucket, useSSL)
 
-	err := p.Delete("foo")
+	err := p.Remove("foo")
 	if err != nil {
-		t.Fatalf("Unable to delete data: %s\n", err)
+		t.Fatalf("Unable to remove data: %s\n", err)
 	}
 
-	// Try to read the data that was just deleted. It should fail.
+	// Try to read the data that was just removed. It should fail.
 	var f bytes.Buffer
 	bytes, err := p.Retrieve("foo", &f)
 	if err == nil {

@@ -58,8 +58,8 @@ func (p *FileSystemProvider) Retrieve(name string, fp io.Writer) (bytes int64, e
 	return bytes, err
 }
 
-// Delete named file from FileSystemProvider.
-func (p *FileSystemProvider) Delete(name string) (error) {
+// Remove named file from FileSystemProvider.
+func (p *FileSystemProvider) Remove(name string) error {
 	fpath := path.Join(p.BaseDir, name)
 	return os.Remove(fpath)
 }

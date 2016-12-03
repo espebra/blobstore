@@ -68,17 +68,17 @@ func TestFileSystemProviderRetrieve(t *testing.T) {
 	}
 }
 
-// Verify that we can delete a file
-func TestFileSystemProviderDelete(t *testing.T) {
+// Verify that we can remove a file
+func TestFileSystemProviderRemove(t *testing.T) {
 	p := newFileSystemProvider()
 	p.Configure(os.TempDir())
 
-	err := p.Delete("foo")
+	err := p.Remove("foo")
 	if err != nil {
-		t.Fatal("Unable to delete data.")
+		t.Fatal("Unable to remove data.")
 	}
 
-	// Try to read the data that was just deleted. It should fail.
+	// Try to read the data that was just removed. It should fail.
 	var f bytes.Buffer
 	bytes, err := p.Retrieve("foo", &f)
 	if err == nil {

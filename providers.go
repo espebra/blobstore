@@ -8,7 +8,7 @@ type Provider interface {
 	Data() *ProviderData
 	Store(string, io.Reader) (int64, error)
 	Retrieve(string, io.Writer) (int64, error)
-	Delete(string) error
+	Remove(string) error
 	Exists(string) (bool, error)
 }
 

@@ -93,8 +93,8 @@ func (p *S3Provider) Retrieve(name string, fp io.Writer) (bytes int64, err error
 	return bytes, err
 }
 
-// Delete named file from S3Provider.
-func (p *S3Provider) Delete(name string) error {
+// Remove named file from S3Provider.
+func (p *S3Provider) Remove(name string) error {
 	minioClient, err := minio.New(p.endpoint, p.key, p.secret, p.useSSL)
 	if err != nil {
 		return err

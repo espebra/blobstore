@@ -1,4 +1,4 @@
-package s3
+package blobstore
 
 import (
 	"bufio"
@@ -6,11 +6,10 @@ import (
 	"github.com/minio/minio-go"
 	"io"
 	"log"
-	"github.com/espebra/blobstore"
 )
 
 type S3Provider struct {
-	*blobstore.ProviderData
+	*ProviderData
 	key      string
 	secret   string
 	useSSL   bool
@@ -19,8 +18,8 @@ type S3Provider struct {
 	bucket   string
 }
 
-// New initializes a new S3Provider with default values.
-func New(p *blobstore.ProviderData) *S3Provider {
+// NewS3Provider initializes a new S3Provider with default values.
+func NewS3Provider(p *ProviderData) *S3Provider {
 	p.Encryption = false
 	p.Secret = ""
 

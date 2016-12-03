@@ -1,20 +1,20 @@
-package filesystem
+package blobstore
 
 import (
 	"bufio"
 	"io"
 	"os"
 	"path"
-	"github.com/espebra/blobstore"
 )
 
 type FileSystemProvider struct {
-	*blobstore.ProviderData
+	*ProviderData
 	BaseDir string
 }
 
-// New initializes a new FileSystemProvider with default values.
-func New(p *blobstore.ProviderData) *FileSystemProvider {
+// NewFileSystemProvider initializes a new FileSystemProvider with default
+// values.
+func NewFileSystemProvider(p *ProviderData) *FileSystemProvider {
 	p.Encryption = false
 	p.Secret = ""
 

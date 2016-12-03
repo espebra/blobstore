@@ -1,20 +1,15 @@
-package filesystem
+package blobstore
 
 import (
 	"bytes"
 	"io"
 	"os"
 	"testing"
-	"github.com/espebra/blobstore"
-)
-
-var (
-	name = "foo"
-	data = []byte("some content")
 )
 
 func newFileSystemProvider() *FileSystemProvider {
-	return New(&blobstore.ProviderData{})
+	return NewFileSystemProvider(
+		&ProviderData{})
 }
 
 func TestFileSystemProviderDefaults(t *testing.T) {
@@ -34,11 +29,11 @@ func TestFileSystemProviderStore(t *testing.T) {
 	p.Configure(os.TempDir())
 
 	r := io.Reader(
-		bytes.NewReader(data),
+		bytes.NewReader([]byte("some content")),
 	)
-	bytes, err := p.Store(name, r)
+	bytes, err := p.Store("foo", r)
 	if err != nil {
-		t.Fatalf("Unable to write data: %s", err)
+		t.Fatal("Unable to write data.")
 	}
 	if bytes != 12 {
 		t.Fatalf("Unexpected number of bytes stored: %d", bytes)
@@ -49,7 +44,7 @@ func TestFileSystemProviderExists(t *testing.T) {
 	p := newFileSystemProvider()
 	p.Configure(os.TempDir())
 
-	exists, err := p.Exists(name)
+	exists, err := p.Exists("foo")
 	if err != nil {
 		t.Fatal("Unexpected error: " + err.Error())
 	}
@@ -64,15 +59,15 @@ func TestFileSystemProviderRetrieve(t *testing.T) {
 	p.Configure(os.TempDir())
 
 	var buf bytes.Buffer
-	bytes, err := p.Retrieve(name, &buf)
+	bytes, err := p.Retrieve("foo", &buf)
 	if err != nil {
 		t.Fatal("Unable to read data.")
 	}
 	if bytes != 12 {
 		t.Fatalf("Unexpected number of bytes retrieved: %d", bytes)
 	}
-	if buf.String() != string(data) {
-		t.Fatalf("Unexpected contents: %s\n", buf.String())
+	if buf.String() != "some content" {
+		t.Fatalf("Unexpected content: %s\n", buf.String())
 	}
 }
 
@@ -81,14 +76,14 @@ func TestFileSystemProviderRemove(t *testing.T) {
 	p := newFileSystemProvider()
 	p.Configure(os.TempDir())
 
-	err := p.Remove(name)
+	err := p.Remove("foo")
 	if err != nil {
 		t.Fatal("Unable to remove data.")
 	}
 
 	// Try to read the data that was just removed. It should fail.
 	var buf bytes.Buffer
-	bytes, err := p.Retrieve(name, &buf)
+	bytes, err := p.Retrieve("foo", &buf)
 	if err == nil {
 		t.Fatal("Unexpected success")
 	}
@@ -96,14 +91,14 @@ func TestFileSystemProviderRemove(t *testing.T) {
 		t.Fatalf("Unexpected number of bytes retrieved: %d", bytes)
 	}
 
-	exists, err := p.Exists(name)
+	exists, err := p.Exists("foo")
 	if err != nil {
 		t.Fatal("Unexpected error: " + err.Error())
 	}
 	if exists == true {
 		t.Fatal("File exists, when it should not")
 	}
-	if buf.String() != "" {
-		t.Fatalf("Unexpected contents: %s\n", buf.String())
+	if buf.String() == "some content" {
+		t.Fatalf("Unexpected content: %s\n", buf.String())
 	}
 }

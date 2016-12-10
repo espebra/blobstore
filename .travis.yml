@@ -23,5 +23,4 @@ script:
   - go tool cover -func=coverage.out
   - go test -cover -coverprofile=coverage.out github.com/espebra/blobstore/s3
   - go tool cover -func=coverage.out
-  - go test -cover -coverprofile=coverage.out github.com/espebra/blobstore/example
-  - go tool cover -func=coverage.out
+  - go test github.com/espebra/blobstore/example

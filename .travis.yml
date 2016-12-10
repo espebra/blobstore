@@ -19,5 +19,7 @@ install:
 script:
   - go test -cover -coverprofile=coverage.out github.com/espebra/blobstore
   - go tool cover -func=coverage.out
-  - go test -cover -coverprofile=coverage.out github.com/espebra/blobstore/example
+  - go test -cover -coverprofile=coverage.out github.com/espebra/blobstore/filesystem
+  - go tool cover -func=coverage.out
+  - go test -cover -coverprofile=coverage.out github.com/espebra/blobstore/s3
   - go tool cover -func=coverage.out

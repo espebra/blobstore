@@ -1,15 +1,16 @@
-package blobstore
+package s3
 
 import (
 	"bufio"
 	"errors"
+	"github.com/espebra/blobstore/common"
 	"github.com/minio/minio-go"
 	"io"
 	"log"
 )
 
 type S3Provider struct {
-	*ProviderData
+	*common.ProviderData
 	key      string
 	secret   string
 	useSSL   bool
@@ -19,34 +20,34 @@ type S3Provider struct {
 }
 
 // NewS3Provider initializes a new S3Provider with default values.
-func NewS3Provider(p *ProviderData) *S3Provider {
+func New(p *common.ProviderData) *S3Provider {
 	p.Encryption = false
 	p.Secret = ""
 
 	return &S3Provider{ProviderData: p}
 }
 
-// Credentials is used to specify the credentials to use for an S3Provider.
-func (p *S3Provider) Credentials(key, secret string) {
-	p.key = key
-	p.secret = secret
-}
-
-// Configure configures an S3Provider.
-func (p *S3Provider) Configure(endpoint, location, bucket string, useSSL bool) {
-	p.endpoint = endpoint
+// Setup
+func (p *S3Provider) Setup(cfg map[string]string) error {
+	p.endpoint = cfg["endpoint"]
 	if p.endpoint == "" {
 		p.endpoint = "s3.amazonaws.com"
 	}
-	p.location = location
+	p.location = cfg["location"]
 	if p.location == "" {
 		p.location = "us-east-1"
 	}
-	p.bucket = bucket
+
+	p.key = cfg["key"]
+	p.secret = cfg["secret"]
+	p.bucket = cfg["bucket"]
 	if p.bucket == "" {
 		p.bucket = "blobstore"
 	}
-	p.useSSL = useSSL
+	if cfg["useSSL"] == "yes" {
+		p.useSSL = true
+	}
+	return nil
 }
 
 // Store named file in S3Provider. The return value bytes is the number of

@@ -1,7 +1,8 @@
-package blobstore
+package s3
 
 import (
 	"bytes"
+	"github.com/espebra/blobstore/common"
 	"io"
 	"testing"
 )
@@ -12,18 +13,30 @@ var (
 	endpoint = "127.0.0.1:9000"
 	location = "us-east-1"
 	bucket   = "foobar"
-	useSSL   = false
+	useSSL   = "no"
+	cfg      = map[string]string{}
 )
 
-func newS3Provider() *S3Provider {
-	return NewS3Provider(&ProviderData{})
+func new() (*S3Provider, error) {
+	cfg := map[string]string{}
+	cfg["key"] = key
+	cfg["secret"] = secret
+	cfg["endpoint"] = endpoint
+	cfg["location"] = location
+	cfg["bucket"] = bucket
+	cfg["useSSL"] = useSSL
+
+	p := New(&common.ProviderData{})
+	err := p.Setup(cfg)
+	return p, err
+	
 }
 
 func TestS3ProviderDefaults(t *testing.T) {
-	p := newS3Provider()
-	p.Credentials(key, secret)
-	p.Configure(endpoint, location, bucket, useSSL)
-
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 	if p.key != key {
 		t.Fatal("Unexpected key: ", p.key)
 	}
@@ -43,26 +56,28 @@ func TestS3ProviderDefaults(t *testing.T) {
 
 // Verify that we can store a file
 func TestS3ProviderStore(t *testing.T) {
-	p := newS3Provider()
-	p.Credentials(key, secret)
-	p.Configure(endpoint, location, bucket, useSSL)
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	r := io.Reader(
 		bytes.NewReader([]byte("some content")),
 	)
-	bytes, err := p.Store("foo", r)
+	nBytes, err := p.Store("foo", r)
 	if err != nil {
 		t.Fatalf("Unable to write data: %s\n", err)
 	}
-	if bytes != 12 {
-		t.Fatalf("Unexpected number of bytes stored: %d\n", bytes)
+	if nBytes != 12 {
+		t.Fatalf("Unexpected number of bytes stored: %d\n", nBytes)
 	}
 }
 
 func TestS3ProviderExists(t *testing.T) {
-	p := newS3Provider()
-	p.Credentials(key, secret)
-	p.Configure(endpoint, location, bucket, useSSL)
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	exists, err := p.Exists("foo")
 	if err != nil {
@@ -75,17 +90,18 @@ func TestS3ProviderExists(t *testing.T) {
 
 // Verify that we can read a file
 func TestS3ProviderRetrieve(t *testing.T) {
-	p := newS3Provider()
-	p.Credentials(key, secret)
-	p.Configure(endpoint, location, bucket, useSSL)
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	var buf bytes.Buffer
-	bytes, err := p.Retrieve("foo", &buf)
+	nBytes, err := p.Retrieve("foo", &buf)
 	if err != nil {
 		t.Fatalf("Unable to read data: %s\n", err)
 	}
-	if bytes != 12 {
-		t.Fatalf("Unexpected number of bytes retrieved: %d\n", bytes)
+	if nBytes != 12 {
+		t.Fatalf("Unexpected number of bytes retrieved: %d\n", nBytes)
 	}
 	if buf.String() != "some content" {
 		t.Fatalf("Unexpected content: %s\n", buf.String())
@@ -94,23 +110,23 @@ func TestS3ProviderRetrieve(t *testing.T) {
 
 // Verify that we can remove a file
 func TestS3ProviderRemove(t *testing.T) {
-	p := newS3Provider()
-	p.Credentials(key, secret)
-	p.Configure(endpoint, location, bucket, useSSL)
-
-	err := p.Remove("foo")
+	p, err := new()
 	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
+
+	if err := p.Remove("foo"); err != nil {
 		t.Fatalf("Unable to remove data: %s\n", err)
 	}
 
 	// Try to read the data that was just removed. It should fail.
 	var buf bytes.Buffer
-	bytes, err := p.Retrieve("foo", &buf)
+	nBytes, err := p.Retrieve("foo", &buf)
 	if err == nil {
 		t.Fatal("Unexpected success")
 	}
-	if bytes != 0 {
-		t.Fatalf("Unexpected number of bytes retrieved: %d\n", bytes)
+	if nBytes != 0 {
+		t.Fatalf("Unexpected number of bytes retrieved: %d\n", nBytes)
 	}
 
 	exists, err := p.Exists("foo")

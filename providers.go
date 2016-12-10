@@ -1,23 +1,17 @@
 package blobstore
 
 import (
-	"io"
+	"github.com/espebra/blobstore/common"
+	"github.com/espebra/blobstore/filesystem"
+	"github.com/espebra/blobstore/s3"
 )
 
-type Provider interface {
-	Data() *ProviderData
-	Store(string, io.Reader) (int64, error)
-	Retrieve(string, io.Writer) (int64, error)
-	Remove(string) error
-	Exists(string) (bool, error)
-}
-
 // New is used to create and initialize a new storage provider.
-func New(provider string, p *ProviderData) Provider {
+func New(provider string, p *common.ProviderData) common.Provider {
 	switch provider {
 	case "s3":
-		return NewS3Provider(p)
+		return s3.New(p)
 	default:
-		return NewFileSystemProvider(p)
+		return filesystem.New(p)
 	}
 }

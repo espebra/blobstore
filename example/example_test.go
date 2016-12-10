@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"github.com/espebra/blobstore"
+	"github.com/espebra/blobstore/common"
 	"io"
 	"os"
 	"testing"
@@ -15,57 +16,69 @@ var (
 	endpoint = "127.0.0.1:9000"
 	location = "us-east-1"
 	bucket   = "foobar"
-	useSSL   = false
+	useSSL   = "no"
 	name     = "bar"
 	data     = []byte("some more content")
 )
 
 func TestFileSystemProvider(t *testing.T) {
 	// Initialize a file system provider
-	f := blobstore.NewFileSystemProvider(&blobstore.ProviderData{})
+	f := blobstore.New("filesystem", &common.ProviderData{})
 
 	// Set basedir
-	f.Configure(os.TempDir())
+	cfg := map[string]string{}
+	cfg["basedir"] = os.TempDir()
+	f.Setup(cfg)
 
 	// Write data
 	r := io.Reader(
 		bytes.NewReader(data),
 	)
-	bytes, err := f.Store(name, r)
+	nBytes, err := f.Store(name, r)
 	if err != nil {
 		t.Fatalf("Unable to write data: %s\n", err)
 	}
-	t.Logf("Wrote %d bytes to the file %s in the system provider.", bytes, name)
+	t.Logf("Wrote %d bytes to the file %s in the system provider.", nBytes, name)
 }
 
 func TestS3Provider(t *testing.T) {
 	// Initialize a file system provider
-	f := blobstore.NewFileSystemProvider(&blobstore.ProviderData{})
+	f := blobstore.New("filesystem", &common.ProviderData{})
 
 	// Set basedir
-	f.Configure(os.TempDir())
+	cfg := map[string]string{}
+	cfg["basedir"] = os.TempDir()
+	f.Setup(cfg)
 
 	// Copy the file from the file system provider to the S3 provider.
 	r, w := io.Pipe()
 	go func() {
 		defer w.Close()
-		bytes, err := f.Retrieve(name, w)
+		nBytes, err := f.Retrieve(name, w)
 		if err != nil {
 			t.Fatalf("Unable to read data: %s\n", err)
 		}
-		t.Logf("Retrieved %d bytes from the file system provider.", bytes)
+		t.Logf("Retrieved %d bytes from the file system provider.", nBytes)
 	}()
 
-	s := blobstore.NewS3Provider(&blobstore.ProviderData{})
-	s.Configure(endpoint, location, bucket, useSSL)
-	s.Credentials(key, secret)
+	s := blobstore.New("s3", &common.ProviderData{})
+	cfg["key"] = key
+	cfg["secret"] = secret
+	cfg["endpoint"] = endpoint
+	cfg["location"] = location
+	cfg["bucket"] = bucket
+	cfg["useSSL"] = useSSL
+
+	if err := s.Setup(cfg); err != nil {
+		t.Fatalf("Unable to setup: ", err.Error())
+	}
 
 	reader := bufio.NewReader(r)
-	bytes, err := s.Store(name, reader)
+	nBytes, err := s.Store(name, reader)
 	if err != nil {
 		t.Fatalf("Unable to write data: %s\n", err)
 	}
-	t.Logf("Wrote %d bytes to the file %s in the s3 provider.", bytes, name)
+	t.Logf("Wrote %d bytes to the file %s in the s3 provider.", nBytes, name)
 
 	// Verify that the file exists in S3
 	exists, err := s.Exists(name)

@@ -29,7 +29,7 @@ func new() (*S3Provider, error) {
 	p := New(&common.ProviderData{})
 	err := p.Setup(cfg)
 	return p, err
-	
+
 }
 
 func TestS3ProviderDefaults(t *testing.T) {

@@ -1,17 +1,17 @@
 package blobstore
 
 import (
-	"testing"
-	"os"
-	"io"
 	"bytes"
 	"github.com/espebra/blobstore/common"
+	"io"
+	"os"
+	"testing"
 )
 
 func TestNewProvider(t *testing.T) {
-        p := New("filesystem", &common.ProviderData{})
-        cfg := map[string]string{}
-        cfg["basedir"] = os.TempDir()
+	p := New("filesystem", &common.ProviderData{})
+	cfg := map[string]string{}
+	cfg["basedir"] = os.TempDir()
 	if err := p.Setup(cfg); err != nil {
 		t.Fatal("Setup failed: ", err.Error())
 	}

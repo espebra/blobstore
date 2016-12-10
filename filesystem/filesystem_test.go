@@ -2,10 +2,10 @@ package filesystem
 
 import (
 	"bytes"
+	"github.com/espebra/blobstore/common"
 	"io"
 	"os"
 	"testing"
-	"github.com/espebra/blobstore/common"
 )
 
 var (
@@ -13,19 +13,19 @@ var (
 )
 
 func new() (*FileSystemProvider, error) {
-        cfg := map[string]string{}
-        cfg["basedir"] = dir
+	cfg := map[string]string{}
+	cfg["basedir"] = dir
 
-        p := New(&common.ProviderData{})
-        err := p.Setup(cfg)
-        return p, err
+	p := New(&common.ProviderData{})
+	err := p.Setup(cfg)
+	return p, err
 }
 
 func TestFileSystemProviderDefaults(t *testing.T) {
-        p, err := new()
-        if err != nil {
-                t.Fatal("Unable to create provider: ", err.Error())
-        }
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	// Verify default values
 	if p.baseDir != dir {
@@ -35,10 +35,10 @@ func TestFileSystemProviderDefaults(t *testing.T) {
 
 // Verify that we can store a file
 func TestFileSystemProviderStore(t *testing.T) {
-        p, err := new()
-        if err != nil {
-                t.Fatal("Unable to create provider: ", err.Error())
-        }
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	r := io.Reader(
 		bytes.NewReader([]byte("some content")),
@@ -53,10 +53,10 @@ func TestFileSystemProviderStore(t *testing.T) {
 }
 
 func TestFileSystemProviderExists(t *testing.T) {
-        p, err := new()
-        if err != nil {
-                t.Fatal("Unable to create provider: ", err.Error())
-        }
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	exists, err := p.Exists("foo")
 	if err != nil {
@@ -69,10 +69,10 @@ func TestFileSystemProviderExists(t *testing.T) {
 
 // Verify that we can read a file
 func TestFileSystemProviderRetrieve(t *testing.T) {
-        p, err := new()
-        if err != nil {
-                t.Fatal("Unable to create provider: ", err.Error())
-        }
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	var buf bytes.Buffer
 	nBytes, err := p.Retrieve("foo", &buf)
@@ -89,10 +89,10 @@ func TestFileSystemProviderRetrieve(t *testing.T) {
 
 // Verify that we can remove a file
 func TestFileSystemProviderRemove(t *testing.T) {
-        p, err := new()
-        if err != nil {
-                t.Fatal("Unable to create provider: ", err.Error())
-        }
+	p, err := new()
+	if err != nil {
+		t.Fatal("Unable to create provider: ", err.Error())
+	}
 
 	if err := p.Remove("foo"); err != nil {
 		t.Fatal("Unable to remove data.")

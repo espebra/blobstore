@@ -2,10 +2,10 @@ package filesystem
 
 import (
 	"bufio"
+	"github.com/espebra/blobstore/common"
 	"io"
 	"os"
 	"path"
-	"github.com/espebra/blobstore/common"
 )
 
 type FileSystemProvider struct {
@@ -24,7 +24,7 @@ func New(p *common.ProviderData) *FileSystemProvider {
 
 // Setup
 func (p *FileSystemProvider) Setup(cfg map[string]string) error {
-        p.baseDir = cfg["basedir"]
+	p.baseDir = cfg["basedir"]
 	if p.baseDir == "" {
 		p.baseDir = "/var/lob/blobstore"
 	}

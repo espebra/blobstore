@@ -85,6 +85,11 @@ func TestFileSystemProviderRetrieve(t *testing.T) {
 	if buf.String() != "some content" {
 		t.Fatalf("Unexpected content: %s\n", buf.String())
 	}
+
+	_, err := p.Retrieve("foo/bar/baz", &buf)
+	if err == nil {
+		t.Fatal("Invalid name was accepted.")
+	}
 }
 
 // Verify that we can remove a file

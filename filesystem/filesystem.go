@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
+	"errors"
 )
 
 type FileSystemProvider struct {
@@ -49,6 +51,10 @@ func (p *FileSystemProvider) Store(name string, data io.Reader) (bytes int64, er
 // Retrieve named file from FileSystemProvider. The return value bytes is the
 // number of bytes that was retrieved.
 func (p *FileSystemProvider) Retrieve(name string, fp io.Writer) (bytes int64, err error) {
+	if name != filepath.Base(name) {
+		return 0, errors.New("Invalid name")
+	}
+
 	fpath := path.Join(p.baseDir, name)
 	f, err := os.Open(fpath)
 	if err != nil {
